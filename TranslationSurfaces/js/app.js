@@ -71,9 +71,9 @@ const clock = new THREE.Clock();
 // material, we need to put everything that need the cube inside the onLoad callback.
 //
 // This can be done better with a bit of refactoring but I hope you get the idea.
-// ShaderLoader("shader/vertex.glsl", "shader/double_pentagon.glsl",
+ShaderLoader("shader/vertex.glsl", "shader/double_pentagon.glsl",
 // ShaderLoader("shader/vertex.glsl", "shader/L_shape.glsl",
-ShaderLoader("shader/vertex.glsl", "shader/yayoi.glsl",
+// ShaderLoader("shader/vertex.glsl", "shader/yayoi.glsl",
   function (vertex, fragment) {
     var material = new THREE.ShaderMaterial({
 

@@ -72,7 +72,8 @@ const clock = new THREE.Clock();
 // This can be done better with a bit of refactoring but I hope you get the idea.
 // ShaderLoader("vertex.glsl", "yayoi_fragment.glsl",
 // ShaderLoader("vertex.glsl", "L_shape_fragment.glsl",
-ShaderLoader("vertex.glsl", "triangle.glsl",
+ShaderLoader("vertex.glsl", "double_pentagon_fragment.glsl",
+// ShaderLoader("vertex.glsl", "triangle.glsl",
 function (vertex, fragment) {
     var material = new THREE.ShaderMaterial({
 
