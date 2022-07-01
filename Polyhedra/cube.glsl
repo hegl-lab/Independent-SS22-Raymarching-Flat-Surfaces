@@ -13,8 +13,9 @@ const float eps = 0.0001;
 float tMax = 50.;
 float b =2.0;
 float wall_height = 5. ;
+float wall_thickness = 0.000001;
 float dist_screen = 1.;
-float cam_detection_boundary = 100.;
+float cam_detection_boundary = 50.;
 vec3 ex = vec3(1.,0.,0.);
 vec3 ey = vec3(0.,1.,0.);
 vec3 ez = vec3(0.,0.,1.);
@@ -66,35 +67,73 @@ float sdSphere( vec3 p, float r ) {
     return length(p) - r;
 }
 
+float sdCone( vec3 p, vec2 c, float h )
+{
+    // c is the sin/cos of the angle, h is height
+  // Alternatively pass q instead of (c,h),
+  // which is the point at the base in 2D
+  vec2 q = h*vec2(c.x/c.y,-1.0);
+    
+  vec2 w = vec2( length(p.xz), p.y );
+  vec2 a = w - q*clamp( dot(w,q)/dot(q,q), 0.0, 1.0 );
+  vec2 b = w - q*vec2( clamp( w.x/q.x, 0.0, 1.0 ), 1.0 );
+  float k = sign( q.y );
+  float d = min(dot( a, a ),dot(b, b));
+  float s = max( k*(w.x*q.y-w.y*q.x),k*(w.y-q.y)  );
+  return sqrt(d)*sign(s);
+}
+
 
 // object
 float sdf( vec3 p) {
     
-    float df  = sdBox(p - vec3(-3.*b, 0.,0.), vec3(eps, wall_height, b)); //Edge 1
-    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(-2.*b,0., b ), vec3(b, wall_height, eps ))); // Edge 2
-    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(-b, 0., 2.*b ), vec3(eps, wall_height, b))); // Edge 3
-    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(0. ,0., 3.*b ), vec3(b, wall_height, eps ))); // Edge 4
-    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(b, 0., 2.*b ), vec3(eps, wall_height, b ))); // Edge 5
-    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(2.*b,0., b ), vec3(b, wall_height, eps ))); // Edge 6
-    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(4.*b,0., b ), vec3(b, wall_height, eps ))); // Edge 7
-    df = opUnion(df, sdBox(p - vec3(5.*b,0., 0. ), vec3(eps, wall_height, b ))); // Edge 8
-    // df = opUnion(df, sdBox(p- vec3(4.*b,0., b ), vec3(b, wall_height, eps ))); // Edge 9
-    // df = opUnion(df, sdBox(p- vec3(2.*b,0., b ), vec3(b, wall_height, eps ))); // Edge 10
-    // df = opUnion(df, sdBox(p- vec3(b, 0., -2.*b ), vec3(b, wall_height, eps ))); // Edge 11 
+    float df  = sdBox(p - vec3(-3.*b, 0.,0.), vec3(wall_thickness, wall_height, b)); //Edge 1
+    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(-2.*b,0., b ), vec3(b, wall_height, wall_thickness ))); // Edge 2
+    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(-b, 0., 2.*b ), vec3(wall_thickness, wall_height, b))); // Edge 3
+    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(0. ,0., 3.*b ), vec3(b, wall_height, wall_thickness ))); // Edge 4
+    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(b, 0., 2.*b ), vec3(wall_thickness, wall_height, b ))); // Edge 5
+    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(2.*b,0., b ), vec3(b, wall_height, wall_thickness ))); // Edge 6
+    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(4.*b,0., b ), vec3(b, wall_height, wall_thickness ))); // Edge 7
+    df = opUnion(df, sdBox(p - vec3(5.*b,0., 0. ), vec3(wall_thickness, wall_height, b ))); // Edge 8
+    // df = opUnion(df, sdBox(p- vec3(4.*b,0., b ), vec3(b, wall_height, wall_thickness ))); // Edge 9
+    // df = opUnion(df, sdBox(p- vec3(2.*b,0., b ), vec3(b, wall_height, wall_thickness ))); // Edge 10
+    // df = opUnion(df, sdBox(p- vec3(b, 0., -2.*b ), vec3(b, wall_height, wall_thickness ))); // Edge 11 
     df = opUnion(df, opSubtraction( sdSphere(p, 0.13), sdBox(p, vec3(0.1))));
-    df = opUnion(df, sdSphere(p -vec3(0., 0.,-2.*b), 0.13));
+    df = opUnion(df, sdSphere(p -vec3(0., 0.,2.*b), 0.13));
+    // df = opUnion(df, sdSphere(p - vec3(1.618033988749895, 0.,0.), 0.2));
+    df = opUnion(df, sdCone(p + vec3(-2.*b, cos(u_time),0.),vec2(.1), .075));
+    df = opUnion(df, sdCone(p - vec3(4.*b, 0.,0.),vec2(.1), .075));
+    return df;
+}
+
+float sdfBlack(vec3 p){    
+    float df  = sdBox(p - vec3(-3.*b, 0.,0.), vec3(wall_thickness, wall_height, b)); //Edge 1
+    df = opUnion(df, sdBox(p - vec3(5.*b,0., 0. ), vec3(wall_thickness, wall_height, b ))); // Edge 8
     return df;
 }
 
 float sdfPink(vec3 p){
-    float df = (sdBox(vec3(p.xy, abs(p.z))- vec3(-2.*b,0., b ), vec3(b, wall_height, eps ))); //Edge 2
-    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(b, 0., 2.*b ), vec3(eps, wall_height, b ))); // Edge 5
+    // float df = (sdBox(vec3(p.xy, abs(p.z))- vec3(-2.*b,0., b ), vec3(b, wall_height, eps ))); //Edge 2
+    // df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(b, 0., 2.*b ), vec3(eps, wall_height, b ))); // Edge 5
+    float df = (sdBox(p- vec3(-2.*b,0., -b ), vec3(b, wall_height, wall_thickness ))); //Edge 2
+    df = opUnion(df, sdBox(p- vec3(b, 0., -2.*b ), vec3(wall_thickness, wall_height, b ))); // Edge 5
+    df = opUnion(df, sdBox(p- vec3(2.*b,0., b ), vec3(b, wall_height, wall_thickness ))); //Edge 10
+    df = opUnion(df, sdBox(p- vec3(-b, 0., 2.*b ), vec3(wall_thickness, wall_height, b))); // Edge 13
+
     return df;
 }
 
 float sdfGreen(vec3 p){
-    float df = sdBox(vec3(p.xy, abs(p.z))- vec3(-b, 0., 2.*b ), vec3(eps, wall_height, b)); // Edge 3
-    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(2.*b,0., b ), vec3(b, wall_height, eps ))); // Edge 6
+    float df = sdBox(p- vec3(-b, 0., -2.*b ), vec3(wall_thickness, wall_height, b)); // Edge 3
+    df = opUnion(df, sdBox(p- vec3(2.*b,0., -b ), vec3(b, wall_height, wall_thickness ))); // Edge 6
+    df = opUnion(df, sdBox(p - vec3(b, 0., 2.*b ), vec3(wall_thickness, wall_height, b ))); // Edge 11
+    df = opUnion(df, sdBox(p- vec3(-2.*b,0., b ), vec3(b, wall_height, wall_thickness ))); // Edge 14
+    return df;
+}
+
+float sdfOrange(vec3 p){
+    float df = sdBox(vec3(p.xy, abs(p.z))- vec3(0. ,0., -3.*b ), vec3(b, wall_height, wall_thickness )); // Edge 4 & 12
+    df = opUnion(df, sdBox(vec3(p.xy, abs(p.z))- vec3(4.*b,0., b ), vec3(b, wall_height, wall_thickness ))); // Edge 7 & 9
     return df;
 }
 
@@ -127,25 +166,41 @@ void main() {
     vec3 pos = cameraPos;
     float collision_count = 0.;
     for(int i = 0; i < 2000; i++) {
-        float h = sdf(pos);
+        float h = (sdf(pos));
 
         pos = pos + h * ray;
         if(h < eps ) {
-            if( sdBox(pos - vec3(-3.*b, 0.,0.), vec3(eps, wall_height, b))< eps)  //Edge 1
+            if( sdfBlack(pos) < eps)  //Edge 1 & 8
             {
-                pos.x = 5. * b - 2.*eps;
+                pos.x += sign(pos.x) *(8. * b - eps);
                 pos += h * ray;
                 collision_count += 1.;            
-            } else if( sdfPink(pos) < eps) //Edge 2
+            } else if( sdfPink(pos) < eps) //Edge 2, 5, 10, 13
+            {
+                // mat2 r = mat2(-1., 0.,
+                //               0., -1.); //wrong matrix for pink (correct for orange)
+                mat2 r = mat2(0., 1.,
+                              -1., 0.);
+                pos.xz = r * (pos.xz - b*sign(pos.xz)) + b*sign(pos.xz);
+                ray.xz = r * ray.xz;
+                pos += (h+420.*eps) * ray;
+                collision_count += 1.;  
+            } else if( sdfGreen(pos) < eps) //Edge 3, 6, 11, 14
             {
                 // mat2 r = mat2(-1., 0.,
                 //               0., -1.); //wrong matrix for pink (correct for orange)
                 mat2 r = mat2(0., -1.,
                               1., 0.);
-                pos.xz = r * pos.xz;
+                pos.xz = r * (pos.xz - b*sign(pos.xz)) + b*sign(pos.xz);
                 ray.xz = r * ray.xz;
-                pos += (h+10.*eps) * ray;
-                collision_count += 1.;            
+                pos += (h+420.*eps) * ray;
+                collision_count += 1.;   
+             } else if( sdfOrange(pos) < eps) //Edge 4, 7, 9, 12
+            {
+                pos.xz += sign(pos.x - 2.*b)*vec2(-4.*b, sign(pos.z)*2.*b);
+                ray.xz = - ray.xz;
+                pos += (h+420.*eps) * ray;
+                collision_count += 1.;       
             // } else if( sdBox(pos - vec3(0., 0., -2.*b - eps), vec3( b, wall_height , eps )) < eps) //Edge 1
             // {
             //     pos.z = 2. * b - 2.*eps;
@@ -176,9 +231,9 @@ void main() {
             //     pos.x = 3. * b - 2.*eps;
             //     pos += h * ray;
             //     collision_count += 1.;            
-            // }else if(t > tMax){ 
-            //     pos = vec3(tMax);
-            //     break;
+            }else if(t > tMax){ 
+                pos = vec3(tMax);
+                break;
             }
         }
         t += h;
