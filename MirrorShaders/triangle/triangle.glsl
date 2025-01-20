@@ -12,7 +12,7 @@ uniform float u_dx;
 const float eps = 0.0001;
 float tMax = 100.;
 float b =5.0;
-float wall_height = 100. ;
+float wall_height = 10. ;
 float dist_screen = 1.;
 float cam_detection_boundary = 100.;
 vec3 ex = vec3(1.,0.,0.);
@@ -170,7 +170,7 @@ void main() {
         //vec3 pos = cameraPos + t * ray;
         vec3 normal = normalize(getNormal(pos));
         // light
-        float diff = dot(vec3(1.), normal);
+        // float diff = dot(vec3(1.), normal);
         // color = vec3(0.5*diff);
         color += normal * 0.5 + 0.5;
     }

@@ -1,10 +1,4 @@
-//TODO:     -compare to previous version and add framerate to browser view
-//          -encapsulate coords and translation rule of surface in a uniform array
-//          -add camera translation
-//          -derive mirror reflections
 
-
-//TODO:     -compare to previous version and add framerate to browser view
 #define M_PI 3.1415926535897932384626433832795
 
 uniform vec2 u_resolution;
@@ -90,7 +84,7 @@ vec4 sdConeT( vec3 p, vec2 c, float h )
   return vec4(vec3(.0),sqrt(d)*sign(s));
 }
 
-/////////////////////////////////////// Values for the double pentagon:(computed in python) ////////////////////////////////
+/////////////////////////////////////// precomputed values for the double pentagon ////////////////////////////////
 
 // Right pentagon:
 //  [[ 3.61803399e+00  0.00000000e+00]
@@ -164,43 +158,9 @@ vec4 sdfT(vec3 p){
     
     
     df = opUnionT(df, opSubtractionT(sdSphereT(p, 0.13), sdBoxT(p, vec3(0.1), vec3(.0))));
-    // df = opUnionT(df, sdSphereT(p - vec3(1.618033988749895, 0.,0.), 0.2));
-    // df = opUnionT(df, sdConeT(p + vec3(0., cos(u_time),0.),vec2(.1), .075));
     df = opUnionT(df, sdSphereT(p - vec3(1.618033988749895+1.618033988749895*cos( 3.0 * (0.5*u_time)), 0., sin(3.0 * (0.5*u_time))), 0.07));
     return df;
 }
-// object
-
-
-// float sdf( vec3 p) {
-//     p = opRep( p, vec3(1.5, 0., 1.5) );
-//     return opSubtraction( sdSphere( p, 0.125 ), sdBox( rotMat(vec3(1., 1., 1.), 1.*u_time) * p, vec3(0.1)) );
-// }
-
-// float sdf( vec3 p) {
-    
-//     float df  = sdBox(p - vec3(0.,0.,2.*b + eps), vec3(b, wall_height, eps)); //Edge 6
-//     df = opUnion(df, sdBox(p- vec3(-b-eps,0., b ), vec3(eps, wall_height, 1.*b ))); // Edge 8
-//     df = opUnion(df, sdBox(p- vec3(-b-eps ,0., -b), vec3(eps, wall_height, 1.*b ))); // Edge 7 
-//     df = opUnion(df, sdBox(p- vec3(b + eps, 0. ,b), vec3(eps, wall_height, b ))); // Edge 5
-//     df = opUnion(df, sdBox(p- vec3(2.*b, 0. ,0.+eps), vec3(b, wall_height, eps ))); // Edge 4
-//     df = opUnion(df, sdBox(p- vec3(3.*b+eps, 0., -b), vec3(eps, wall_height, b ))); // Edge 3
-//     df = opUnion(df, sdBox(p- vec3(2. * b, 0., -2.*b -eps), vec3( b, wall_height , eps ))); // Edge 2
-//     df = opUnion(df, sdBox(p- vec3(0., 0., -2.*b-eps), vec3( b, wall_height , eps ))); // Edge 1
-//     df = opUnion(df, sdSphere(p - vec3(1.* b, 0., -b), 0.1));
-//     df = opUnion(df, opSubtraction( sdSphere(p , 0.13), sdBox(p, vec3(0.1))));
-
-//     return df;
-// }
-
-
-// vec3 getNormal( vec3 p ) {
-//     const float eps = 0.0001;
-//     const vec2 h = vec2( eps, 0. );
-//     return normalize( vec3(sdf(p+h.xyy) - sdf(p-h.xyy),
-//                             sdf(p+h.yxy) - sdf(p-h.yxy),
-//                             sdf(p+h.yyx) - sdf(p-h.yyx) ) );
-// }
 
 vec3 getNormalT(vec3 p){
     const vec2 h = vec2( eps, 0. );
@@ -218,35 +178,6 @@ void main() {
 
     // translation of the uv_screen
     vec3 uv_screen_origin = u_dz * ez  + u_dx * ex + u_dy * ey;
-    
-    // float h_cam = sdf(uv_screen_origin);
-    // if(h_cam < eps ) {
-    //     if( sdBox(uv_screen_origin - vec3(0.,0.,2.*b + cam_detection_boundary), vec3(b, wall_height, cam_detection_boundary)) < 0.)  //Edge 6
-    //     {
-    //         uv_screen_origin.z = -2. * b + 2.*eps;            
-    //     } else if( sdBox(uv_screen_origin- vec3(2.*b, 0. ,0. + cam_detection_boundary), vec3(b, wall_height, cam_detection_boundary )) < 0.) //Edge 4
-    //     {
-    //         uv_screen_origin.z = -2. * b + 2.*eps;            
-    //     } else if( sdBox(uv_screen_origin - vec3(0., 0., -2.*b - cam_detection_boundary), vec3( b, wall_height , cam_detection_boundary )) < 0.) //Edge 1
-    //     {
-    //         uv_screen_origin.z = 2. * b - 2.*eps;            
-    //     } else if(sdBox(uv_screen_origin - vec3(2. * b, 0., -2.*b - cam_detection_boundary), vec3( b, wall_height , cam_detection_boundary )) < 0.) // Edge 2
-    //     {
-    //         uv_screen_origin.z = - 2.*eps;            
-    //     } else if( sdBox(uv_screen_origin- vec3(3.*b + cam_detection_boundary, 0., -b), vec3(cam_detection_boundary, wall_height, b )) < 0.) //Edge 3
-    //     {
-    //         uv_screen_origin.x = -b + 2.*eps;            
-    //     } else if( sdBox(uv_screen_origin- vec3(b + cam_detection_boundary, 0. ,b), vec3(cam_detection_boundary, wall_height, b )) < 0.) //Edge 5
-    //     {
-    //         uv_screen_origin.x = -b + 2.*eps;            
-    //     } else if( sdBox(uv_screen_origin- vec3(-b - cam_detection_boundary,0., -b), vec3(cam_detection_boundary, wall_height, 1.*b )) < 0.) //Edge 7
-    //     {
-    //         uv_screen_origin.x = b - 2.*eps;            
-    //     } else if( sdBox(uv_screen_origin- vec3(-b - cam_detection_boundary,0., b ), vec3(cam_detection_boundary, wall_height, 1.*b )) < 0.) //Edge 8
-    //     {
-    //         uv_screen_origin.x = 3. * b - 2.*eps;            
-    //     }
-    // }
     vec3 cameraPos = uv_screen_origin - dist_screen*ez;
     vec3 uv_screen = uv_screen_origin + viewRotation * vec3((gl_FragCoord.xy - 0.5 * u_resolution) / (1.*u_resolution.y) + u_cameraPos.xy, 0.);
     // ray marching
@@ -255,62 +186,6 @@ void main() {
     float t_surface = 0.;
     vec3 pos = cameraPos;
     float collision_count = 0.;
-    // for(int i = 0; i < 2000; i++) {
-    //     float h = sdf(pos);
-
-    //     pos = pos + h * ray;
-    //     if(h < eps ) {
-    //         if( sdBox(pos - vec3(0.,0.,2.*b+eps), vec3(b, wall_height, eps)) < eps)  //Edge 6
-    //         {
-    //             // pos.z = -2. * b + 2.*eps;
-    //             pos.z -= 4.*b-2.*eps;
-
-    //             pos += h * ray;
-    //             collision_count += 1.;            
-    //         } else if( sdBox(pos- vec3(2.*b, 0. ,0.+eps), vec3(b, wall_height, eps )) < eps) //Edge 4
-    //         {
-    //             pos.z = -2. * b + 2.*eps;
-    //             pos += h * ray;
-    //             collision_count += 1.;            
-    //         } else if( sdBox(pos - vec3(0., 0., -2.*b - eps), vec3( b, wall_height , eps )) < eps) //Edge 1
-    //         {
-    //             // pos.z = 2. * b - 2.*eps;
-    //             pos.z += 4.*b-2.*eps;
-
-    //             pos += h * ray;
-    //             collision_count += 1.;            
-    //         }else if(sdBox(pos - vec3(2. * b, 0., -2.*b - eps), vec3( b, wall_height , eps )) < eps) // Edge 2
-    //         {
-    //             pos.z = - 2.*eps;
-    //             pos += h * ray;
-    //             collision_count += 1.;            
-    //         }else if( sdBox(pos- vec3(3.*b + eps, 0., -b), vec3(eps, wall_height, b )) < eps) //Edge 3
-    //         {
-    //             pos.x = -b + 2.*eps;
-    //             pos += h * ray;
-    //             collision_count += 1.;            
-    //         }else if( sdBox(pos- vec3(b + eps, 0. ,b), vec3(eps, wall_height, b )) < eps) //Edge 5
-    //         {
-    //             pos.x = -b + 2.*eps;
-    //             pos += h * ray;
-    //             collision_count += 1.;            
-    //         }else if( sdBox(pos- vec3(-b-eps ,0., b), vec3(eps, wall_height, 1.*b )) < eps) //Edge 7
-    //         {
-    //             pos.x = b - 2.*eps;
-    //             pos += h * ray;
-    //             collision_count += 1.;
-    //         }else if( sdBox(pos- vec3(-b - eps ,0., -b ), vec3(eps, wall_height, 1.*b )) < eps) //Edge 8
-    //         {
-    //             pos.x = 3. * b - 2.*eps;
-    //             pos += h * ray;
-    //             collision_count += 1.;            
-    //         }else if(t > tMax){ 
-    //             pos = vec3(tMax);
-    //             break;
-    //         }
-    //     }
-    //     t += h;
-    // }
 
     for(int i = 0; i < 1000; i++) {
         vec4 h = sdfT(pos);
@@ -331,12 +206,13 @@ void main() {
     if(t < tMax) {
         //vec3 pos = cameraPos + t * ray;
         vec3 normal = normalize(getNormalT(pos));
-        // light
+        
+        //simple vertical light
         // float diff = dot(vec3(1.), normal);
-        // color = vec3(0.5*diff);
+        // color = vec3(0.1*diff);
+        
         color += normal * 0.5 + 0.5;
     }
     float fog = collision_count*0.00001;
     gl_FragColor = vec4(color, .1) + collision_count*vec4(.05);
-    //gl_FragColor = atan(1.,0.)*vec4(1.,0.,0.,1.)/ 2.*M_PI;
 }

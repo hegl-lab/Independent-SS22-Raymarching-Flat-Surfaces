@@ -105,33 +105,7 @@ void main() {
     vec3 uv_screen_origin = u_dz * ez  + u_dx * ex + u_dy * ey;
     
     float h_cam = sdf(uv_screen_origin);
-    // if(h_cam < eps ) {
-    //     if( sdBox(uv_screen_origin - vec3(0.,0.,2.*b + cam_detection_boundary), vec3(b, wall_height, cam_detection_boundary)) < 0.)  //Edge 6
-    //     {
-    //         uv_screen_origin.z = -2. * b + 2.*eps;            
-    //     } else if( sdBox(uv_screen_origin- vec3(2.*b, 0. ,0. + cam_detection_boundary), vec3(b, wall_height, cam_detection_boundary )) < 0.) //Edge 4
-    //     {
-    //         uv_screen_origin.z = -2. * b + 2.*eps;            
-    //     } else if( sdBox(uv_screen_origin - vec3(0., 0., -2.*b - cam_detection_boundary), vec3( b, wall_height , cam_detection_boundary )) < 0.) //Edge 1
-    //     {
-    //         uv_screen_origin.z = 2. * b - 2.*eps;            
-    //     } else if(sdBox(uv_screen_origin - vec3(2. * b, 0., -2.*b - cam_detection_boundary), vec3( b, wall_height , cam_detection_boundary )) < 0.) // Edge 2
-    //     {
-    //         uv_screen_origin.z = - 2.*eps;            
-    //     } else if( sdBox(uv_screen_origin- vec3(3.*b + cam_detection_boundary, 0., -b), vec3(cam_detection_boundary, wall_height, b )) < 0.) //Edge 3
-    //     {
-    //         uv_screen_origin.x = -b + 2.*eps;            
-    //     } else if( sdBox(uv_screen_origin- vec3(b + cam_detection_boundary, 0. ,b), vec3(cam_detection_boundary, wall_height, b )) < 0.) //Edge 5
-    //     {
-    //         uv_screen_origin.x = -b + 2.*eps;            
-    //     } else if( sdBox(uv_screen_origin- vec3(-b - cam_detection_boundary,0., -b), vec3(cam_detection_boundary, wall_height, 1.*b )) < 0.) //Edge 7
-    //     {
-    //         uv_screen_origin.x = b - 2.*eps;            
-    //     } else if( sdBox(uv_screen_origin- vec3(-b - cam_detection_boundary,0., b ), vec3(cam_detection_boundary, wall_height, 1.*b )) < 0.) //Edge 8
-    //     {
-    //         uv_screen_origin.x = 3. * b - 2.*eps;            
-    //     }
-    // }
+
     vec3 cameraPos = uv_screen_origin - dist_screen*ez;
     vec3 uv_screen = uv_screen_origin + viewRotation * vec3((gl_FragCoord.xy - 0.5 * u_resolution) / (1.*u_resolution.y) + u_cameraPos.xy, 0.);
     // ray marching
@@ -201,7 +175,7 @@ void main() {
         //vec3 pos = cameraPos + t * ray;
         vec3 normal = normalize(getNormal(pos));
         // light
-        float diff = dot(vec3(1.), normal);
+        // float diff = dot(vec3(1.), normal); 
         // color = vec3(0.5*diff);
         color += normal * 0.5 + 0.5;
     }

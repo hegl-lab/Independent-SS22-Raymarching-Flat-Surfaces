@@ -67,9 +67,6 @@ float sdSphere( vec3 p, float r ) {
     return length(p) - r;
 }
 
-
-
-
 // object
 
 float sdf_mirrors(vec3 p){

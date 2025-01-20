@@ -1,11 +1,5 @@
 /**
  * This is a basic asyncronous shader loader for THREE.js.
- * 
- * It uses the built-in THREE.js async loading capabilities to load shaders from files!
- * 
- * `onProgress` and `onError` are stadard TREE.js stuff. Look at 
- * https://threejs.org/examples/webgl_loader_obj.html for an example. 
- * 
  * @param {String} vertex_url URL to the vertex shader code.
  * @param {String} fragment_url URL to fragment shader code
  * @param {function(String, String)} onLoad Callback function(vertex, fragment) that take as input the loaded vertex and fragment contents.
@@ -26,12 +20,6 @@
 
 // FPS info
 (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//mrdoob.github.io/stats.js/build/stats.min.js';document.head.appendChild(script);})()
-
-// ============================================================================
-
-// An example!
-
-
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -124,24 +112,7 @@ ShaderLoader("vertex.glsl", "L_shape.glsl",
           break;
         case "d":
           uniforms.u_dx.value += speed;
-          break;        // case "ArrowDown":
-        //   uniforms.u_dz.value -= speed;
-        //   break;
-        // case "ArrowUp":
-        //   uniforms.u_dz.value += speed;
-        //   break;
-        // case "ArrowLeft":
-        //   uniforms.u_dx.value -= speed;
-        //   break;
-        // case "ArrowRight":
-        //   uniforms.u_dx.value += speed;
-        //   break;
-          // case "i":
-          //   uniforms.u_cameraPos.value.z += speed;
-          //   break;
-          // case "o":
-          //   uniforms.u_cameraPos.value.z -= speed;
-          //   break;
+          break;        
         default:
           return; // Quit when this doesn't handle the key event.
       }
