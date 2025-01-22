@@ -232,16 +232,16 @@ void main() {
 
     // color
 
-    vec3 color = vec3(0.);
+    vec3 color = vec3(1.);
     if(t < tMax) {
         //vec3 pos = cameraPos + t * ray;
         vec3 normal = normalize(getNormal(pos));
         // light
         float diff = dot(vec3(1.), normal);
         // color = vec3(0.5*diff);
-        color += normal * 0.5 + 0.5;
+        color = normal * 0.5 + 0.5;
     }
 
     // adding collision fog
-    gl_FragColor = vec4(color, .1) + collision_count*vec4(.05);
+    gl_FragColor = vec4(color, .1) - collision_count*vec4(.05);
 }
