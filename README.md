@@ -23,7 +23,7 @@ The project uses shader-based ray marching to create accurate and performant vis
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/yourusername/raymarching-on-surfaces.git
+git clone https://github.com/hegl-lab/Independent-SS22-Raymarching-Flat-Surfaces.git
 ```
 
 2. Navigate to the project directory:
